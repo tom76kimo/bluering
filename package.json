@@ -11,5 +11,8 @@
     "contribution"
   ],
   "author": "tom76kimo",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "request": "~2.55.0"
+  }
 }
