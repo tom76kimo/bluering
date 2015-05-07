@@ -22,6 +22,27 @@ request({
     }
 }, function (error, response, data) {
     if (!error && response.statusCode == 200) {
-        console.log(data);
+        var totalCount = data.total_count;
+        exec1(data.items[0]);
     }
 });
+
+function exec1(item) {
+    var url = item.url;
+    var urlSplits = url.split('/');
+    var repoOwner = urlSplits[4];
+    var repoName = urlSplits[5];
+    var contributorUri = 'https://api.github.com/repos/' + repoOwner + '/' + repoName + '/contributors';
+    request({
+        method: 'GET',
+        json: true,
+        uri: contributorUri,
+        headers: {
+            'User-Agent': 'request'
+        }
+    }, function (error, response, data) {
+        if (!error && response.statusCode == 200) {
+            console.log(data);
+        }
+    });
+}
