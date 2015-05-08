@@ -20,7 +20,7 @@ var githubContributor = function (userName) {
 
     fetch(uri, function (data) {
         var totalCount = data.total_count;
-        isContributor(data.items[1], function (data) {
+        isContributor(data.items[1], userName, function (data) {
             console.log(data);
         });
     });

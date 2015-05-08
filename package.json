@@ -13,6 +13,7 @@
   "author": "tom76kimo",
   "license": "MIT",
   "dependencies": {
+    "debug": "~2.1.3",
     "request": "~2.55.0"
   }
 }
