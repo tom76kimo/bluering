@@ -1,6 +1,7 @@
 var request = require('request');
 var produceUri = require('./lib/produceUri');
 var isContributor = require('./lib/isContributor');
+var fetch = require('./lib/fetch');
 
 var githubContributor = function (userName) {
 
@@ -17,20 +18,11 @@ var githubContributor = function (userName) {
 
     console.log(uri);
 
-    request({
-        method: 'GET',
-        json: true,
-        uri: uri,
-        headers: {
-            'User-Agent': 'request'
-        }
-    }, function (error, response, data) {
-        if (!error && response.statusCode == 200) {
-            var totalCount = data.total_count;
-            isContributor(data.items[1], function (data) {
-                console.log(data);
-            });
-        }
+    fetch(uri, function (data) {
+        var totalCount = data.total_count;
+        isContributor(data.items[1], function (data) {
+            console.log(data);
+        });
     });
 };
 
