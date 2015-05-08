@@ -1,4 +1,5 @@
 var async = require('async');
+var debug = require('debug')('index');
 var request = require('request');
 var produceUri = require('./lib/produceUri');
 var isContributor = require('./lib/isContributor');
@@ -19,7 +20,7 @@ var githubContributor = function (userName) {
     var uri = produceUri(host, configs, pageConfig);
     var taskArray = [];
 
-    console.log(uri);
+    debug('first fetcing url', uri);
 
     fetch(uri, function (data) {
         var totalCount = data.total_count;
