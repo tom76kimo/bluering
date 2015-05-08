@@ -1,7 +1,9 @@
+var async = require('async');
 var request = require('request');
 var produceUri = require('./lib/produceUri');
 var isContributor = require('./lib/isContributor');
 var fetch = require('./lib/fetch');
+var removeDuplicates = require('./lib/removeDuplicates');
 
 var githubContributor = function (userName) {
 
@@ -15,13 +17,30 @@ var githubContributor = function (userName) {
     var pageConfig = '&per_page=' + perPage + '&page=' + page;
     var host = 'https://api.github.com/search/issues?q=';
     var uri = produceUri(host, configs, pageConfig);
+    var taskArray = [];
 
     console.log(uri);
 
     fetch(uri, function (data) {
         var totalCount = data.total_count;
-        isContributor(data.items[1], userName, function (data) {
-            console.log(data);
+
+        for (var i = 0; i < data.items.length; ++i) {
+            (function (key) {
+                taskArray.push(function (callback) {
+                    isContributor(data.items[key], userName, function (data) {
+                        callback(null, data);
+                    });
+                });
+            })(i);
+        }
+
+        async.parallel(taskArray, function (err, results) {
+            if (!err) {
+                results = results.filter(function (entry) {
+                    return !!entry;
+                })
+                console.log(removeDuplicates(results));
+            }
         });
     });
 };
