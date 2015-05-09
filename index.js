@@ -6,12 +6,15 @@ var isContributor = require('./lib/isContributor');
 var fetch = require('./lib/fetch');
 var removeDuplicates = require('./lib/removeDuplicates');
 
-var githubContributor = function (userName) {
-
+var githubContributor = function (configs, callback) {
+    if (!configs || !configs.userName) {
+        return callback && callback(new Error('no configs or userName given'));
+    }
+    var userName = configs.userName;
     var configs = {
         type: 'pr',
         is: 'merged',
-        author: 'tom76kimo'
+        author: userName
     };
     var perPage = 100;
     var page = 1;
@@ -46,5 +49,7 @@ var githubContributor = function (userName) {
     });
 };
 
-githubContributor('tom76kimo');
+githubContributor({
+    userName: 'tom76kimo'
+});
 module.exports = githubContributor;
