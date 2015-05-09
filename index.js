@@ -5,6 +5,30 @@ var produceUri = require('./lib/produceUri');
 var isContributor = require('./lib/isContributor');
 var fetch = require('./lib/fetch');
 var removeDuplicates = require('./lib/removeDuplicates');
+var extractRepoData = require('./lib/extractRepoData');
+
+var uniquelizeData = function (data) {
+    if (!data || !data.items || !Array.isArray(data.items)) {
+        return [];
+    }
+    var uniqueRecord = {};
+    var uniqueData = data.items.filter(function (entry) {
+        if (!entry.url) {
+            return false;
+        }
+
+        var repoData = extractRepoData(entry.url);
+        var repoKey = repoData.repoOwner + '/' + repoData.repoName;
+        if (uniqueRecord.hasOwnProperty(repoKey)) {
+            return false;
+        } else {
+            uniqueRecord[repoKey] = true;
+            return true;
+        }
+    });
+
+    return uniqueData;
+};
 
 var githubContributor = function (configs, callback) {
     if (!configs || !configs.userName) {
@@ -27,11 +51,13 @@ var githubContributor = function (configs, callback) {
 
     fetch(uri, function (data) {
         var totalCount = data.total_count;
+        var uniqueRecord = {};
+        var uniqueData = uniquelizeData(data);
 
-        for (var i = 0; i < data.items.length; ++i) {
+        for (var i = 0; i < uniqueData.length; ++i) {
             (function (key) {
                 taskArray.push(function (callback) {
-                    isContributor(data.items[key], userName, function (data) {
+                    isContributor(uniqueData[key], userName, function (data) {
                         callback(null, data);
                     });
                 });
