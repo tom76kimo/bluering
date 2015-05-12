@@ -6,6 +6,20 @@ var isContributor = require('./lib/isContributor');
 var fetch = require('./lib/fetch');
 var removeDuplicates = require('./lib/removeDuplicates');
 var extractRepoData = require('./lib/extractRepoData');
+var GitHubApi = require("github");
+
+var github = new GitHubApi({
+    // required
+    version: "3.0.0",
+    // optional
+    debug: true,
+    protocol: "https",
+    host: "api.github.com", // should be api.github.com for GitHub
+    timeout: 5000,
+    headers: {
+        "user-agent": "Nice-App" // GitHub is happy with a unique user agent
+    }
+});
 
 var uniquelizeData = function (data) {
     if (!data || !data.items || !Array.isArray(data.items)) {
@@ -34,22 +48,35 @@ var githubContributor = function (configs, callback) {
     if (!configs || !configs.userName) {
         return callback && callback(new Error('no configs or userName given'));
     }
+    if (configs.login && configs.login.id && configs.login.password) {
+        try {
+            github.authenticate({
+                type: "basic",
+                username: configs.login.id,
+                password: configs.login.password
+            });
+        } catch (err) {
+            callback && callback(err);
+        }
+    }
     var userName = configs.userName;
-    var configs = {
+    var searchConfigs = {
         type: 'pr',
         is: 'merged',
         author: userName
     };
     var perPage = 100;
     var page = 1;
-    var pageConfig = '&per_page=' + perPage + '&page=' + page;
-    var host = 'https://api.github.com/search/issues?q=';
-    var uri = produceUri(host, configs, pageConfig);
+    var uri = produceUri(searchConfigs);
     var taskArray = [];
 
     debug('first fetcing url', uri);
 
-    fetch(uri, function (data) {
+    github.search.issues({
+        q: uri,
+        page: page,
+        per_page: perPage
+    }, function (err, data) {
         var totalCount = data.total_count;
         var uniqueRecord = {};
         var uniqueData = uniquelizeData(data);
@@ -69,13 +96,25 @@ var githubContributor = function (configs, callback) {
                 results = results.filter(function (entry) {
                     return !!entry;
                 })
-                console.log(removeDuplicates(results));
+                callback && callback(null, removeDuplicates(results));
+            } else {
+                callback && callback(err);
             }
         });
     });
 };
 
 githubContributor({
+    login: {
+        id: 'tom76kimo',
+        password: ''
+    },
     userName: 'tom76kimo'
+}, function (err, data) {
+    if (!err) {
+        console.log(data);
+    } else {
+        console.log(err.message);
+    }
 });
 module.exports = githubContributor;
