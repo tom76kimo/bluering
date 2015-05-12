@@ -84,8 +84,12 @@ var githubContributor = function (configs, callback) {
         for (var i = 0; i < uniqueData.length; ++i) {
             (function (key) {
                 taskArray.push(function (callback) {
-                    isContributor(github, uniqueData[key], userName, function (data) {
-                        callback(null, data);
+                    isContributor(github, uniqueData[key], userName, function (err, data) {
+                        if (!err) {
+                            callback(null, data);
+                        } else {
+                            callback(err);
+                        }
                     });
                 });
             })(i);
