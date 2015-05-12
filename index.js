@@ -9,6 +9,8 @@ var extractRepoData = require('./lib/extractRepoData');
 var GitHubApi = require("github");
 var perPage = 100;
 var finalResults = [];
+var finalCallback;
+var issueTotalPage = 0;
 
 var github = new GitHubApi({
     // required
@@ -83,16 +85,29 @@ var readIssues = function (github, userName, queryUri, page, callback) {
         per_page: perPage
     }, function (err, data) {
         var issueData = data;
+        var totalCount;
         if (!err) {
+            if (page === 1) {
+                totalCount = parseInt(data.total_count, 10);
+                issueTotalPage = (totalCount % perPage > 0) ? 1 : 0;
+                issueTotalPage = issueTotalPage + parseInt((totalCount / perPage), 10);
+            }
             executeContributorCheck(data, userName, function (err, data) {
                 if (!err) {
-                    finalResults = finalResults.concat(data);
+                    finalResults = removeDuplicates(finalResults.concat(data));
+                    callback && callback(null, {
+                        progress: page + '/' + issueTotalPage,
+                        results: finalResults
+                    });
                 }
                 if (issueData.items.length === perPage) {
                     // maybe have more data
                     readIssues(github, userName, queryUri, (page + 1), callback);
                 } else {
-                    callback && callback(null, finalResults);
+                    finalCallback && finalCallback(null, {
+                        progress: page + '/' + issueTotalPage,
+                        results: finalResults
+                    });
                 }
             });
         } else {
@@ -116,6 +131,9 @@ var githubContributor = function (configs, callback) {
             callback && callback(err);
         }
     }
+    if (configs.finalCallback) {
+        finalCallback = configs.finalCallback;
+    }
     var userName = configs.userName;
     var searchConfigs = {
         type: 'pr',
@@ -127,13 +145,7 @@ var githubContributor = function (configs, callback) {
 
     debug('first fetcing url', uri);
 
-    readIssues(github, userName, uri, page, function (err, data) {
-        if (!err) {
-            callback && callback(null, removeDuplicates(data));
-        } else {
-            callback && callback(err);
-        }
-    });
+    readIssues(github, userName, uri, page, callback);
 };
 
 githubContributor({
@@ -141,10 +153,13 @@ githubContributor({
         id: 'tom76kimo',
         password: ''
     },
-    userName: 'tom76kimo'
+    userName: 'megawac',
+    finalCallback: function (err, data) {
+        console.log('===final===', data);
+    }
 }, function (err, data) {
     if (!err) {
-        console.log('===final===', data);
+        console.log('===progress===', data);
     } else {
         console.log(err.message);
     }
