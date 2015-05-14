@@ -1,7 +1,7 @@
 {
   "name": "github-contributions",
   "version": "0.0.1",
-  "description": "",
+  "description": "A tool for retrieving contributions by user",
   "main": "index.js",
   "scripts": {
     "test": "mocha tests/**/"
