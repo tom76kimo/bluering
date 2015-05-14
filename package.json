@@ -1,5 +1,5 @@
 {
-  "name": "github-contributions",
+  "name": "bluering",
   "version": "0.0.1",
   "description": "A tool for retrieving contributions by user",
   "main": "index.js",

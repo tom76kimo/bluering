@@ -119,7 +119,7 @@ var readIssues = function (github, userName, queryUri, page, callback) {
     });
 };
 
-var githubContributor = function (configs) {
+var fetchContributions = function (configs) {
     var callback;
     if (configs && configs.progressCallback) {
         callback = configs.progressCallback;
@@ -155,4 +155,6 @@ var githubContributor = function (configs) {
     readIssues(github, userName, uri, page, callback);
 };
 
-module.exports = githubContributor;
+module.exports = {
+    fetchContributions: fetchContributions
+};
