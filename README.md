@@ -7,7 +7,7 @@ A tool for fetching all contributions by user name.
 npm install bluering
 ```
 # Usage
-```
+```Javascript
 var bluering = require('bluering');
 
 bluering.fetchContributions({
