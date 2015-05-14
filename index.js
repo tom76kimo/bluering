@@ -96,8 +96,11 @@ var readIssues = function (github, userName, queryUri, page, callback) {
                 if (!err) {
                     finalResults = removeDuplicates(finalResults.concat(data));
                     callback && callback(null, {
-                        progress: page + '/' + issueTotalPage,
-                        results: finalResults
+                        progress: {
+                            current: page,
+                            total: issueTotalPage
+                        },
+                        contributions: finalResults
                     });
                 }
                 if (issueData.items.length === perPage) {
@@ -116,7 +119,11 @@ var readIssues = function (github, userName, queryUri, page, callback) {
     });
 };
 
-var githubContributor = function (configs, callback) {
+var githubContributor = function (configs) {
+    var callback;
+    if (configs && configs.progressCallback) {
+        callback = configs.progressCallback;
+    }
     if (!configs || !configs.userName) {
         return callback && callback(new Error('no configs or userName given'));
     }
@@ -148,20 +155,4 @@ var githubContributor = function (configs, callback) {
     readIssues(github, userName, uri, page, callback);
 };
 
-githubContributor({
-    login: {
-        id: 'tom76kimo',
-        password: ''
-    },
-    userName: 'megawac',
-    finalCallback: function (err, data) {
-        console.log('===final===', data);
-    }
-}, function (err, data) {
-    if (!err) {
-        console.log('===progress===', data);
-    } else {
-        console.log(err.message);
-    }
-});
 module.exports = githubContributor;
