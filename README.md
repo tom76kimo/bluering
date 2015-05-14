@@ -6,6 +6,16 @@ A tool for fetching all contributions by user name.
 ```
 npm install bluering
 ```
+# Results
+```
+[ 
+    'rackt/react-router',
+    'h5bp/Front-end-Developer-Interview-Questions',
+    'facebook/flux',
+    'KartikTalwar/gmail-chrome-extension-boilerplate',
+    'html5rocks/www.html5rocks.com' 
+]
+```
 # Usage
 ```Javascript
 var bluering = require('bluering');
