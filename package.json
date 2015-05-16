@@ -1,6 +1,6 @@
 {
   "name": "bluering",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A tool for retrieving contributions by user",
   "main": "index.js",
   "scripts": {
